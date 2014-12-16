@@ -1,0 +1,134 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="./plantillas/plantilla.xhtml">
+
+    <ui:define name="title">
+        Gestion de Clientes - paises
+    </ui:define>
+
+    <ui:define name="content">        
+        <h:form id="nuevo_pais">  
+            <p:growl id="growl" showDetail="true" sticky="true" />
+            <br></br>
+            <div align="left">
+                <p:panelGrid style="width: 470px" columns="2">  
+                    <f:facet name="header">  
+                        <div align="left">Nuevo País</div>
+                    </f:facet>                             
+
+                    <h:outputLabel for="codigo_pais" value="Código: " />  
+                    <p:inputText style="width: 100px" id="codigo_pais" value="#{paisMB.newPais.codPais}" required="true" requiredMessage="Debes Ingresar un Código de País">                                                                                  
+                    </p:inputText>
+
+                    <h:outputLabel for="pais" value="País: " />  
+                    <p:inputText style="width: 320px" id="pais" value="#{paisMB.newPais.pais}" required="true" requiredMessage="Debes Ingresar un nuevo País">
+                        <f:validateLength minimum="5" />                                                    
+                    </p:inputText>  
+
+                    <h:outputLabel for="region" value="Región: " />  
+                    <p:selectOneMenu style="width: 330px" value="#{paisMB.id_region}" required="true" requiredMessage="Debes seleccionar una Región">
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="" />
+                        <f:selectItems var="comboRegion" value="#{paisMB.regionList}" itemLabel="#{comboRegion.region}" itemValue="#{comboRegion.idRegion}"/>                                   
+                    </p:selectOneMenu> 
+
+                    <f:facet name="footer">  
+                        <div align="right">
+                            <p:commandButton id="addPais" value="Guardar" icon="ui-icon-disk" actionListener="#{paisMB.addPais()}" action="#{paisMB.resetPais()}" update=":nuevo_pais,:edicion_pais"/>                      
+                            <p:commandButton id="reset" value="Limpiar" actionListener="#{paisMB.resetPais()}" update="nuevo_pais"/>                                
+                        </div>
+                    </f:facet>  
+                </p:panelGrid>
+            </div>
+            <br></br>
+        </h:form>  
+
+        <h:form id="edicion_pais">                  
+            <p:dataTable id="pais" var="p" value="#{paisMB.paisList}"
+                         paginator="true" rows="10"  
+                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         rowsPerPageTemplate="5,10,15"
+                         >  
+
+                <p:column headerText="Id" style="width:2%">  
+                    <h:outputText value="#{p.idPais}" />  
+                </p:column> 
+
+                <p:column headerText="Código" style="width:2%">  
+                    <h:outputText value="#{p.codPais}" />  
+                </p:column>  
+
+                <p:column headerText="País" style="width:24%">  
+                    <h:outputText value="#{p.pais}" />  
+                </p:column>                                                 
+
+                <p:column headerText="Región" style="width:24%">  
+                    <h:outputText value="#{p.region.region}" />  
+                </p:column> 
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="updateButton" update=":editarPaisDlg" oncomplete="PF('editarPaisDialog').show()" icon="ui-icon-pencil" title="Editar">  
+                        <f:setPropertyActionListener value="#{p}" target="#{paisMB.selectedPais}" />  
+                    </p:commandButton>  
+                </p:column>
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="deleteButton" actionListener="#{paisMB.deletePais(p.idPais)}" update=":edicion_pais" icon="ui-icon-trash"  >                                                        
+                        <p:confirm header="Confirmar" message="¿Desea borrar el país?" icon="ui-icon-alert" />  
+                    </p:commandButton>  
+
+                    <p:confirmDialog id="eliminarDialog" global="true" showEffect="fade" hideEffect="fade">  
+                        <div align="center">
+                            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>  
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>       
+                        </div>
+                    </p:confirmDialog>  
+                </p:column>
+
+            </p:dataTable>  
+            <div align="right">
+                <h:panelGrid columns="2">  
+                    <p:panel>  
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/excel.png" />  
+                            <p:dataExporter type="xls" target="pais" fileName="PaisXLS" />  
+                        </h:commandLink>                                  
+
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/csv.png" />  
+                            <p:dataExporter type="csv" target="pais" fileName="PaisCSV" />  
+                        </h:commandLink>                              
+                    </p:panel>  
+                </h:panelGrid>
+            </div>
+
+        </h:form>
+
+        <p:dialog header="Editar País" widgetVar="editarPaisDialog" resizable="false" id="editarPaisDlg" > 
+            <h:form id="editar_pais_dialog_form">
+                <p:panelGrid id="display" columns="2" style="margin:0 auto;">   
+                    <h:outputText value="Id: "></h:outputText>
+                    <h:inputText readonly="true" value="#{paisMB.selectedPais.idPais}" />
+
+                    <h:outputText value="Código :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{paisMB.selectedPais.codPais}" required="true" requiredMessage="Ingrese un código de país!"/>                                                         
+
+                    <h:outputText value="País :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{paisMB.selectedPais.pais}" required="true" requiredMessage="Ingrese un país!"/>                                                         
+
+                    <f:facet name="footer">
+                        <div align="right">
+                            <p:commandButton value="Actualizar" update=":editar_pais_dialog_form,:edicion_pais" actionListener="#{paisMB.updatePais()}">
+                                <f:ajax event="click" onevent="editarPaisDlg.hide()" />
+                            </p:commandButton>
+
+                        </div>
+                    </f:facet>
+                </p:panelGrid> 
+            </h:form>
+        </p:dialog>       
+    </ui:define>
+
+</ui:composition>

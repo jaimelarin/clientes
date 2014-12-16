@@ -1,0 +1,124 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="./plantillas/plantilla.xhtml">
+
+    <ui:define name="title">
+        Gestion de Clientes - regiones
+    </ui:define>
+
+    <ui:define name="content">        
+        <h:form id="nueva_region">  
+            <p:growl id="growl" showDetail="true" sticky="true" />
+            <br></br>
+            <div align="left">
+                <p:panelGrid style="width: 470px" columns="2">  
+                    <f:facet name="header">  
+                        <div align="left">Nueva Region</div>
+                    </f:facet>                             
+
+                    <h:outputLabel for="codigo_region" value="Código: " />  
+                    <p:inputText style="width: 100px" id="codigo_region" value="#{regionMB.newRegion.codRegion}" required="true" requiredMessage="Debes Ingresar un Código de Region">                                                                                  
+                    </p:inputText>
+
+                    <h:outputLabel for="region" value="Region: " />  
+                    <p:inputText style="width: 320px" id="region" value="#{regionMB.newRegion.region}" required="true" requiredMessage="Debes Ingresar una nueva Region">
+                        <f:validateLength minimum="5" />                                                    
+                    </p:inputText>                               
+
+                    <f:facet name="footer">  
+                        <div align="right">
+                            <p:commandButton id="addRegion" value="Guardar" icon="ui-icon-disk" actionListener="#{regionMB.addRegion()}" action="#{regionMB.resetRegion()}" update=":nueva_region,:edicion_region"/>                      
+                            <p:commandButton id="reset" value="Limpiar" actionListener="#{regionMB.resetRegion()}" update="nueva_region"/>                                
+                        </div>
+                    </f:facet>  
+                </p:panelGrid>
+            </div>
+            <br></br>
+        </h:form>  
+
+        <h:form id="edicion_region">                  
+            <p:dataTable id="region" var="rg" value="#{regionMB.regionList}"
+                         paginator="true" rows="10"  
+                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         rowsPerPageTemplate="5,10,15"
+                         >  
+
+                <p:column headerText="Id" style="width:2%">  
+                    <h:outputText value="#{rg.idRegion}" />  
+                </p:column> 
+
+                <p:column headerText="Código" style="width:2%">  
+                    <h:outputText value="#{rg.codRegion}" />  
+                </p:column>  
+
+                <p:column headerText="Región" style="width:24%">  
+                    <h:outputText value="#{rg.region}" />  
+                </p:column>                                                 
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="updateButton" update=":editarRegionDlg" oncomplete="PF('editarRegionDialog').show()" icon="ui-icon-pencil" title="Editar">  
+                        <f:setPropertyActionListener value="#{rg}" target="#{regionMB.selectedRegion}" />  
+                    </p:commandButton>  
+                </p:column>
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="deleteButton" actionListener="#{regionMB.deleteRegion(rg.idRegion)}" update=":edicion_region" icon="ui-icon-trash"  >                                
+                        <p:confirm header="Confirmar" message="¿Desea borrar la Región?" icon="ui-icon-alert" />  
+                    </p:commandButton>  
+
+                    <p:confirmDialog id="eliminarDialog" global="true" showEffect="fade" hideEffect="fade">  
+                        <div align="center">
+                            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>  
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>       
+                        </div>
+                    </p:confirmDialog>  
+                </p:column>
+
+            </p:dataTable>  
+            <div align="right">
+                <h:panelGrid columns="2">  
+                    <p:panel>  
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/excel.png" />  
+                            <p:dataExporter type="xls" target="region" fileName="RegionXLS" />  
+                        </h:commandLink>                                  
+
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/csv.png" />  
+                            <p:dataExporter type="csv" target="region" fileName="RegionCSV" />  
+                        </h:commandLink>                              
+                    </p:panel>  
+                </h:panelGrid>
+            </div>
+
+        </h:form>
+
+        <p:dialog header="Editar Región" widgetVar="editarRegionDialog" resizable="false" id="editarRegionDlg" > 
+            <h:form id="editar_region_dialog_form">
+                <p:panelGrid id="display" columns="2" style="margin:0 auto;">   
+                    <h:outputText value="Id: "></h:outputText>
+                    <h:inputText readonly="true" value="#{regionMB.selectedRegion.idRegion}" />
+
+                    <h:outputText value="Código :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{regionMB.selectedRegion.codRegion}" required="true" requiredMessage="Ingrese un código de región!"/>                                                         
+
+                    <h:outputText value="Región :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{regionMB.selectedRegion.region}" required="true" requiredMessage="Ingrese una región!"/>                                                         
+
+                    <f:facet name="footer">
+                        <div align="right">
+                            <p:commandButton value="Actualizar" update=":editar_region_dialog_form,:edicion_region" actionListener="#{regionMB.updateRegion()}">
+                                <f:ajax event="click" onevent="editarRegionDlg.hide()" />
+                            </p:commandButton>
+
+                        </div>
+                    </f:facet>
+                </p:panelGrid> 
+            </h:form>
+        </p:dialog>       
+    </ui:define>
+
+</ui:composition>

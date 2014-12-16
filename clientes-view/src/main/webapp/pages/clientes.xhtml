@@ -1,0 +1,194 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="./plantillas/plantilla.xhtml">
+
+    <ui:define name="title">
+        Gestion de Clientes - Clientes
+    </ui:define>
+
+    <ui:define name="content">          
+
+        <h:form id="tabla_cliente">  
+            <p:growl id="growl" showDetail="true" sticky="true" />
+            <br></br> 
+            <span>
+                <p:commandButton value="Nuevo Empleado" actionListener="#{clienteMB.resetCliente()}" update=":nuevo_cliente_dialog_form:display" oncomplete="PF('nuevoClienteDialog').show()"  title="Ver"/>                                    
+            </span>
+            <br></br>
+            <p:dataTable id="cliente" var="cl" value="#{clienteMB.clienteList}"
+                         paginator="true" rows="10"  
+                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         rowsPerPageTemplate="5,10,15"
+                         >  
+
+                <p:column headerText="Id" style="width:2%">  
+                    <h:outputText value="#{cl.idCliente}" />  
+                </p:column> 
+
+                <p:column headerText="Código" style="width:3%">  
+                    <h:outputText value="#{cl.codCliente}" />  
+                </p:column>  
+
+                <p:column headerText="Nombres" style="width:24%">  
+                    <h:outputText value="#{cl.nombres}" />  
+                </p:column>                                                 
+
+                <p:column headerText="Apellidos" style="width:24%">  
+                    <h:outputText value="#{cl.apellidos}" />  
+                </p:column> 
+
+                <p:column headerText="Fecha de Nacimiento" style="width:20%">  
+                    <h:outputText value="#{cl.fechaNac}" />  
+                </p:column>
+
+                <p:column headerText="Pais" style="width:10%">  
+                    <h:outputText value="#{cl.pais.pais}" />  
+                </p:column>
+
+                <p:column headerText="Estado" style="width:10%">  
+                    <h:outputText value="#{cl.estado.estado}" />  
+                </p:column>
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="updateButton" update=":nuevo_cliente_dialog_form:display,:editar_cliente_dialog_form,:editarClienteDlg" oncomplete="PF('editarClienteDialog').show()" icon="ui-icon-pencil" title="Editar">  
+                        <f:setPropertyActionListener value="#{cl}" target="#{clienteMB.selectedCliente}" />  
+                    </p:commandButton>  
+                </p:column>
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="deleteButton" actionListener="#{clienteMB.deleteCliente(cl.idCliente)}" update=":tabla_cliente" icon="ui-icon-trash"  >                                                        
+                        <p:confirm header="Confirmar" message="¿Desea borrar el cliente?" icon="ui-icon-alert" />  
+                    </p:commandButton>  
+
+                    <p:confirmDialog id="eliminarDialog" global="true" showEffect="fade" hideEffect="fade">  
+                        <div align="center">
+                            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>  
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>       
+                        </div>
+                    </p:confirmDialog>  
+                </p:column>
+
+            </p:dataTable>  
+            <div align="right">
+                <h:panelGrid columns="2">  
+                    <p:panel>  
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/excel.png" />  
+                            <p:dataExporter type="xls" target="cliente" fileName="ClienteXLS" />  
+                        </h:commandLink>                                  
+
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/csv.png" />  
+                            <p:dataExporter type="csv" target="cliente" fileName="ClienteCSV" />  
+                        </h:commandLink>                              
+                    </p:panel>  
+                </h:panelGrid>
+            </div>
+
+        </h:form>  
+
+        <p:dialog header="Nuevo Cliente" widgetVar="nuevoClienteDialog" showEffect="fade" hideEffect="fade" resizable="false" id="nuevoClienteDlg" > 
+            <h:form id="nuevo_cliente_dialog_form">
+                <p:panelGrid id="display" columns="2" style="margin:0 auto;">                               
+
+                    <h:outputText value="Código :"></h:outputText>
+                    <h:inputText style="width: 80px" value="#{clienteMB.newCliente.codCliente}" required="true" requiredMessage="Ingrese un Código"/> 
+
+                    <h:outputText value="Nombres :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.newCliente.nombres}" required="true" requiredMessage="Ingrese los nombres"/>                                                         
+
+                    <h:outputText value="Apellidos :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.newCliente.apellidos}" required="true" requiredMessage="Ingrese los apellidos"/>
+
+                    <h:outputText value="Fecha de Nacimiento :"></h:outputText>                            
+                    <p:calendar pattern="dd/MM/yyyy" navigator="true" value="#{clienteMB.newCliente.fechaNac}" id="popupCal" required="true" requiredMessage="Ingrese una fecha de nacimiento" />    
+
+                    <h:outputText value="Domicilio :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.newCliente.domicilio}" required="true" requiredMessage="Ingrese el domicilio"/>
+
+                    <p:outputLabel for="region" value="Región: " />
+                    <p:selectOneMenu id="region" value="#{clienteMB.region}" style="width:150px">
+                        <p:ajax listener="#{clienteMB.onRegionChange()}" update="pais" />
+                        <f:selectItem itemLabel="Seleccione Región" itemValue="" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.regiones}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="pais" value="País: " />
+                    <p:selectOneMenu id="pais" value="#{clienteMB.pais}" style="width:150px">
+                        <p:ajax listener="#{clienteMB.onPaisChange()}" update="estado" />
+                        <f:selectItem itemLabel="Seleccione País" itemValue="" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.paises}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="estado" value="Estado: " />
+                    <p:selectOneMenu id="estado" value="#{clienteMB.estado}" style="width:150px">
+                        <f:selectItem itemLabel="Seleccione Estado" itemValue="" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.estados}" />
+                    </p:selectOneMenu>
+
+                    <f:facet name="footer">
+                        <div align="right">
+                            <p:commandButton value="Guardar" icon="ui-icon-disk" actionListener="#{clienteMB.addCliente()}" action="clientes">
+                                <f:ajax event="click" onevent="nuevoClienteDlg.hide()"/>                                  
+                            </p:commandButton>
+                        </div>
+                    </f:facet>
+                </p:panelGrid> 
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Editar Cliente" widgetVar="editarClienteDialog" showEffect="fade" hideEffect="fade" resizable="false" id="editarClienteDlg" > 
+            <h:form id="editar_cliente_dialog_form">
+                <p:panelGrid id="display" columns="2" style="margin:0 auto;">   
+                    <h:outputText value="Código :"></h:outputText>
+                    <h:inputText style="width: 80px" value="#{clienteMB.selectedCliente.codCliente}" required="true" requiredMessage="Ingrese un Código"/> 
+
+                    <h:outputText value="Nombres :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.selectedCliente.nombres}" required="true" requiredMessage="Ingrese los nombres"/>                                                         
+
+                    <h:outputText value="Apellidos :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.selectedCliente.apellidos}" required="true" requiredMessage="Ingrese los apellidos"/>
+
+                    <h:outputText value="Fecha de Nacimiento :"></h:outputText>                            
+                    <p:calendar pattern="dd/MM/yyyy" navigator="true" value="#{clienteMB.selectedCliente.fechaNac}" id="popupCal" required="true" requiredMessage="Ingrese una fecha de nacimiento" />    
+
+                    <h:outputText value="Domicilio :"></h:outputText>
+                    <h:inputText style="width: 175px" value="#{clienteMB.selectedCliente.domicilio}" required="true" requiredMessage="Ingrese el domicilio"/>
+
+                    <p:outputLabel for="region" value="Región: " />
+                    <p:selectOneMenu id="region" value="#{clienteMB.region}" style="width:150px">
+                        <p:ajax listener="#{clienteMB.onRegionChange()}" update="pais" />
+                        <f:selectItem itemLabel="#{clienteMB.selectedCliente.region.region}" itemValue="#{clienteMB.selectedCliente.region.idRegion}" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.regiones}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="pais" value="País: " />
+                    <p:selectOneMenu id="pais" value="#{clienteMB.pais}" style="width:150px">
+                        <p:ajax listener="#{clienteMB.onPaisChange()}" update="estado" />
+                        <f:selectItem itemLabel="#{clienteMB.selectedCliente.pais.pais}" itemValue="#{clienteMB.selectedCliente.pais.idPais}" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.paises}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="estado" value="Estado: " />
+                    <p:selectOneMenu id="estado" value="#{clienteMB.estado}" style="width:150px">
+                        <f:selectItem itemLabel="#{clienteMB.selectedCliente.estado.estado}" itemValue="#{clienteMB.selectedCliente.estado.idEstado}" noSelectionOption="true" />
+                        <f:selectItems value="#{clienteMB.estados}" />
+                    </p:selectOneMenu>
+
+                    <f:facet name="footer">
+                        <div align="right">
+                            <p:commandButton value="Actualizar" actionListener="#{clienteMB.updateCliente()}" action="clientes" >
+                                <f:ajax event="click" onevent="editarClienteDlg.hide()" />
+                            </p:commandButton>
+                        </div>
+                    </f:facet>
+                </p:panelGrid> 
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

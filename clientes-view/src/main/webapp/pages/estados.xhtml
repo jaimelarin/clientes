@@ -1,0 +1,134 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="./plantillas/plantilla.xhtml">
+
+    <ui:define name="title">
+        Gestion de Clientes - Estados
+    </ui:define>
+
+    <ui:define name="content">        
+        <h:form id="nuevo_estado">  
+            <p:growl id="growl" showDetail="true" sticky="true" />
+            <br></br>
+            <div align="left">
+                <p:panelGrid style="width: 470px" columns="2">  
+                    <f:facet name="header">  
+                        <div align="left">Nuevo Estado</div>
+                    </f:facet>                             
+
+                    <h:outputLabel for="codigo_estado" value="Código: " />  
+                    <p:inputText style="width: 100px" id="codigo_estado" value="#{estadoMB.newEstado.codEstado}" required="true" requiredMessage="Debes Ingresar un Código de Estado">                                                                                  
+                    </p:inputText>
+
+                    <h:outputLabel for="estado" value="Estado: " />  
+                    <p:inputText style="width: 320px" id="pais" value="#{estadoMB.newEstado.estado}" required="true" requiredMessage="Debes Ingresar un nuevo Estado">
+                        <f:validateLength minimum="5" />                                                    
+                    </p:inputText>  
+
+                    <h:outputLabel for="pais" value="País: " />  
+                    <p:selectOneMenu style="width: 330px" value="#{estadoMB.id_pais}" required="true" requiredMessage="Debes seleccionar un País">
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="" />
+                        <f:selectItems var="comboPais" value="#{estadoMB.paisList}" itemLabel="#{comboPais.pais}" itemValue="#{comboPais.idPais}"/>                                   
+                    </p:selectOneMenu> 
+
+                    <f:facet name="footer">  
+                        <div align="right">
+                            <p:commandButton id="addEstado" value="Guardar" icon="ui-icon-disk" actionListener="#{estadoMB.addEstado()}" action="#{estadoMB.resetEstado()}" update=":nuevo_estado,:edicion_estado"/>                      
+                            <p:commandButton id="reset" value="Limpiar" actionListener="#{estadoMB.resetEstado()}" update="nuevo_estado"/>                                
+                        </div>
+                    </f:facet>  
+                </p:panelGrid>
+            </div>
+            <br></br>
+        </h:form>  
+
+        <h:form id="edicion_estado">                  
+            <p:dataTable id="estado" var="e" value="#{estadoMB.estadoList}"
+                         paginator="true" rows="10"  
+                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         rowsPerPageTemplate="5,10,15"
+                         >  
+
+                <p:column headerText="Id" style="width:2%">  
+                    <h:outputText value="#{e.idEstado}" />  
+                </p:column> 
+
+                <p:column headerText="Código" style="width:2%">  
+                    <h:outputText value="#{e.codEstado}" />  
+                </p:column>  
+
+                <p:column headerText="Estado" style="width:24%">  
+                    <h:outputText value="#{e.estado}" />  
+                </p:column>                                                 
+
+                <p:column headerText="País" style="width:24%">  
+                    <h:outputText value="#{e.pais.pais}" />  
+                </p:column> 
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="updateButton" update=":editarEstadoDlg" oncomplete="PF('editarEstadoDialog').show()" icon="ui-icon-pencil" title="Editar">  
+                        <f:setPropertyActionListener value="#{e}" target="#{estadoMB.selectedEstado}" />  
+                    </p:commandButton>  
+                </p:column>
+
+                <p:column exportable="false" style="width:2%">  
+                    <p:commandButton id="deleteButton" actionListener="#{estadoMB.deleteEstado(id_estado)}" update=":edicion_estado" icon="ui-icon-trash"  >                                                        
+                        <p:confirm header="Confirmar" message="¿Desea borrar el estado?" icon="ui-icon-alert" />  
+                    </p:commandButton>  
+
+                    <p:confirmDialog id="eliminarDialog" global="true" showEffect="fade" hideEffect="fade">  
+                        <div align="center">
+                            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>  
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>       
+                        </div>
+                    </p:confirmDialog>  
+                </p:column>
+
+            </p:dataTable>  
+            <div align="right">
+                <h:panelGrid columns="2">  
+                    <p:panel>  
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/excel.png" />  
+                            <p:dataExporter type="xls" target="estado" fileName="EstadoXLS" />  
+                        </h:commandLink>                                  
+
+                        <h:commandLink>  
+                            <p:graphicImage value="/resources/images/csv.png" />  
+                            <p:dataExporter type="csv" target="estado" fileName="EstadoCSV" />  
+                        </h:commandLink>                              
+                    </p:panel>  
+                </h:panelGrid>
+            </div>
+
+        </h:form>
+
+        <p:dialog header="Editar Estado" widgetVar="editarEstadoDialog" resizable="false" id="editarEstadoDlg" > 
+            <h:form id="editar_estado_dialog_form">
+                <p:panelGrid id="display" columns="2" style="margin:0 auto;">   
+                    <h:outputText value="Id: "></h:outputText>
+                    <h:inputText readonly="true" value="#{estadoMB.selectedEstado.idEstado}" />
+
+                    <h:outputText value="Código :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{estadoMB.selectedEstado.codEstado}" required="true" requiredMessage="Ingrese un código de estado!"/>                                                         
+
+                    <h:outputText value="Estado :"></h:outputText>
+                    <h:inputText style="width: 250px" value="#{estadoMB.selectedEstado.estado}" required="true" requiredMessage="Ingrese un estado!"/>                                                         
+
+                    <f:facet name="footer">
+                        <div align="right">
+                            <p:commandButton value="Actualizar" update=":editar_estado_dialog_form,:edicion_estado" actionListener="#{estadoMB.updateEstado()}">
+                                <f:ajax event="click" onevent="editarEstadoDlg.hide()" />
+                            </p:commandButton>
+
+                        </div>
+                    </f:facet>
+                </p:panelGrid> 
+            </h:form>
+        </p:dialog>       
+    </ui:define>
+
+</ui:composition>

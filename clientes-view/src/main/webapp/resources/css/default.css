@@ -1,0 +1,30 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 03-08-2014, 08:54:28 PM
+    Author     : Jaime Hernández
+*/
+.ui-widget, .ui-widget .ui-widget {
+
+    font-size: 90% !important;  
+
+}
+
+body {
+    background-color: white;
+} 
+
+h1 {
+    font-family: "verdana";
+    color: black;
+
+}
+
+span {
+    font-family: "verdana";
+    size: 10px;
+    color: black;
+}
